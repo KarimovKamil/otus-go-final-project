@@ -1,0 +1,90 @@
+run:
+  tests: true
+
+linters-settings:
+  funlen:
+    lines: 150
+    statements: 80
+  depguard:
+    rules:
+      main:
+        allow:
+          - github.com/KarimovKamil/otus-go-final-project
+          - io
+          - os
+          - fmt
+          - time
+          - bytes
+          - errors
+          - strings
+          - regexp
+          - strconv
+          - syscall
+          - context
+          - net/http
+          - gopkg.in/yaml.v2
+          - github.com/mailru/easyjson
+          - github.com/julienschmidt/httprouter
+          - github.com/c-bata/go-prompt
+          - golang.org/x/time/rate
+          - github.com/jmoiron/sqlx
+          - github.com/lib/pq
+          - github.com/spf13/cobra
+
+linters:
+  disable-all: true
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - gofmt
+    - gofumpt
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - importas
+    - ineffassign
+    - lll
+    - makezero
+    - misspell
+    - nestif
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - tagliatelle
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - wastedassign
+    - whitespace
