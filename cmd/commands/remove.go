@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/KarimovKamil/otus-go-final-project/internal/entity/request"
 	"github.com/mailru/easyjson"
@@ -14,19 +13,20 @@ import (
 )
 
 var removeCmd = &cobra.Command{
-	Use:   "remove",
+	Use:   "remove [ip] [mask]",
 	Short: "Remove network from list",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		usedCommand := strings.Fields(cmd.CommandPath())[1]
-		if len(args) != 2 {
-			fmt.Println("Usage: abf " + usedCommand + " remove <ip> <mask>")
+		serverAddress, err := cmd.Flags().GetString("ip")
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
-		if usedCommand == whiteList {
-			removeFromList(args[0], args[1], whiteList)
+		if cmd.Parent().Name() == whiteList {
+			removeFromList(args[0], args[1], whiteList, serverAddress)
 			return
-		} else if usedCommand == blackList {
-			removeFromList(args[0], args[1], blackList)
+		} else if cmd.Parent().Name() == blackList {
+			removeFromList(args[0], args[1], blackList, serverAddress)
 			return
 		}
 		fmt.Println("Unknown command")
@@ -34,15 +34,20 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
+	removeCmd.Flags().String("ip", serviceAddr, "service address")
 	removeCmdForWhiteList := *removeCmd
 	removeCmdForBlackList := *removeCmd
 	whiteListCmd.AddCommand(&removeCmdForWhiteList)
 	blackListCmd.AddCommand(&removeCmdForBlackList)
 }
 
-func removeFromList(ip, mask, list string) {
+func removeFromList(ip, mask, list, serverAddress string) {
 	networkRequest := &request.NetworkRequest{Network: ip + "/" + mask}
-	requestBody, _ := easyjson.Marshal(networkRequest)
+	requestBody, err := easyjson.Marshal(networkRequest)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	httpRequest, err := http.NewRequestWithContext(context.Background(), http.MethodDelete,
 		serverAddress+"/api/"+list, bytes.NewBuffer(requestBody))

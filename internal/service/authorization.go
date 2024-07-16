@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/KarimovKamil/otus-go-final-project/internal/config"
 	"github.com/KarimovKamil/otus-go-final-project/internal/entity/request"
 )
@@ -9,11 +11,11 @@ type Authorization struct {
 	ipRateLimit       *RateLimit
 	loginRateLimit    *RateLimit
 	passwordRateLimit *RateLimit
-	blackList         *BlackList
-	whiteList         *WhiteList
+	blackList         *ListService
+	whiteList         *ListService
 }
 
-func NewAuthorization(config config.Config, blackList *BlackList, whiteList *WhiteList) *Authorization {
+func NewAuthorization(config config.Config, blackList *ListService, whiteList *ListService) *Authorization {
 	return &Authorization{
 		ipRateLimit:       NewRateLimit(config.Bucket.IPLimit, config.Bucket.BucketTTL),
 		loginRateLimit:    NewRateLimit(config.Bucket.LoginLimit, config.Bucket.BucketTTL),
@@ -23,8 +25,8 @@ func NewAuthorization(config config.Config, blackList *BlackList, whiteList *Whi
 	}
 }
 
-func (a *Authorization) Authorize(request request.AuthRequest) (bool, error) {
-	isContains, err := a.blackList.IsContains(request.IP)
+func (a *Authorization) Authorize(ctx context.Context, request request.AuthRequest) (bool, error) {
+	isContains, err := a.blackList.IsContains(ctx, request.IP)
 	if err != nil {
 		return false, err
 	}
@@ -32,7 +34,7 @@ func (a *Authorization) Authorize(request request.AuthRequest) (bool, error) {
 		return false, nil
 	}
 
-	isContains, err = a.whiteList.IsContains(request.IP)
+	isContains, err = a.whiteList.IsContains(ctx, request.IP)
 	if err != nil {
 		return false, err
 	}

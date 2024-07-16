@@ -13,22 +13,25 @@ import (
 )
 
 var resetCmd = &cobra.Command{
-	Use:   "reset",
+	Use:   "reset [login] [ip]",
 	Short: "Reset buckets",
-	Run: func(_ *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println("Usage: abf bucket reset <login> <ip>")
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		serverAddress, err := cmd.Flags().GetString("ip")
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
-		resetBuckets(args[0], args[1])
+		resetBuckets(args[0], args[1], serverAddress)
 	},
 }
 
 func init() {
+	resetCmd.Flags().String("ip", serviceAddr, "service address")
 	bucketCmd.AddCommand(resetCmd)
 }
 
-func resetBuckets(login, ip string) {
+func resetBuckets(login, ip, serverAddress string) {
 	resetRequest := &request.BucketResetRequest{Login: login, IP: ip}
 	requestBody, _ := easyjson.Marshal(resetRequest)
 

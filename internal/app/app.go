@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/KarimovKamil/otus-go-final-project/internal/config"
 	"github.com/KarimovKamil/otus-go-final-project/internal/controller/httpapi"
@@ -15,24 +17,31 @@ import (
 )
 
 func main() {
-	projectConfig := config.Read("./configs/config.yaml")
+	projectConfig, err := config.Read("./configs/config.yaml")
+	if err != nil {
+		fmt.Println("error while reading config file: ", err)
+		exitAfterDefer(1)
+	}
 
 	psql := client.NewPostgresSQL(projectConfig)
-	err := psql.Connect(context.Background())
+	err = psql.Connect(context.Background())
 	if err != nil {
-		panic(err)
+		fmt.Println("error while connecting to database: ", err)
+		exitAfterDefer(1)
 	}
-	defer psql.Close()
+	defer func() {
+		psql.Close()
+	}()
 
-	blackListRepo := repository.NewBlackListRepo(psql)
-	blackList := service.NewBlackList(blackListRepo)
+	blackListRepo := repository.NewListRepo(psql, repository.BlackListTable)
+	blackListService := service.NewListService(blackListRepo)
 
-	whiteListRepo := repository.NewWhiteListRepo(psql)
-	whiteList := service.NewWhiteList(whiteListRepo)
+	whiteListRepo := repository.NewListRepo(psql, repository.WhiteListTable)
+	whiteListService := service.NewListService(whiteListRepo)
 
-	listHandler := handler.NewListHandler(whiteList, blackList)
+	listHandler := handler.NewListHandler(whiteListService, blackListService)
 
-	authService := service.NewAuthorization(projectConfig, blackList, whiteList)
+	authService := service.NewAuthorization(projectConfig, blackListService, whiteListService)
 	authHandler := handler.NewAuthHandler(authService)
 
 	bucketHandler := handler.NewBucketHandler(authService)
@@ -40,12 +49,16 @@ func main() {
 	router := httpapi.NewAPIRouter(authHandler, bucketHandler, listHandler)
 	router.RegisterRoutes()
 
-	ch := make(chan os.Signal, 1)
-
 	httpServer := httpapi.NewServer(router.GetRouter(), &projectConfig)
-	go httpServer.ShutdownService(ch)
+	notifyContext, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	go httpServer.ShutdownService(notifyContext, cancel)
 	err = httpServer.Start()
 	if err != nil {
 		fmt.Println(err)
+		exitAfterDefer(1)
 	}
+}
+
+func exitAfterDefer(code int) {
+	os.Exit(code)
 }

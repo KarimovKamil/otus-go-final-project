@@ -36,7 +36,7 @@ func (h *AuthHandler) TryLogin(rw http.ResponseWriter, r *http.Request, _ httpro
 		rw.WriteHeader(http.StatusBadRequest)
 	}
 
-	isAuthorized, err := h.service.Authorize(authRequest)
+	isAuthorized, err := h.service.Authorize(r.Context(), authRequest)
 	if err != nil {
 		fmt.Println("error while authorizing: ", err)
 		rw.WriteHeader(http.StatusInternalServerError)

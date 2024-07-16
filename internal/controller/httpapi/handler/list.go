@@ -18,11 +18,11 @@ const (
 )
 
 type ListHandler struct {
-	whiteListService *service.WhiteList
-	blackListService *service.BlackList
+	whiteListService *service.ListService
+	blackListService *service.ListService
 }
 
-func NewListHandler(whiteListService *service.WhiteList, blackListService *service.BlackList) *ListHandler {
+func NewListHandler(whiteListService *service.ListService, blackListService *service.ListService) *ListHandler {
 	return &ListHandler{
 		whiteListService: whiteListService,
 		blackListService: blackListService,
@@ -59,9 +59,9 @@ func (l *ListHandler) addToList(rw http.ResponseWriter, r *http.Request, list in
 	}
 
 	if list == blackList {
-		err = l.blackListService.Add(networkRequest.Network)
+		err = l.blackListService.Add(r.Context(), networkRequest.Network)
 	} else {
-		err = l.whiteListService.Add(networkRequest.Network)
+		err = l.whiteListService.Add(r.Context(), networkRequest.Network)
 	}
 
 	if err != nil {
@@ -90,9 +90,9 @@ func (l *ListHandler) removeFromList(rw http.ResponseWriter, r *http.Request, li
 	}
 
 	if list == blackList {
-		err = l.blackListService.Remove(networkRequest.Network)
+		err = l.blackListService.Remove(r.Context(), networkRequest.Network)
 	} else {
-		err = l.whiteListService.Remove(networkRequest.Network)
+		err = l.whiteListService.Remove(r.Context(), networkRequest.Network)
 	}
 
 	if err != nil {

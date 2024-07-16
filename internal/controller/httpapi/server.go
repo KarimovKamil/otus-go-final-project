@@ -3,9 +3,6 @@ package httpapi
 import (
 	"context"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/KarimovKamil/otus-go-final-project/internal/config"
@@ -34,11 +31,8 @@ func (s *Server) Start() error {
 	return s.server.ListenAndServe()
 }
 
-func (s *Server) ShutdownService(c chan os.Signal) {
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
-	<-c
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func (s *Server) ShutdownService(ctx context.Context, cancel context.CancelFunc) {
+	<-ctx.Done()
 	s.server.Shutdown(ctx)
+	cancel()
 }

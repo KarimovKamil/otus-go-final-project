@@ -7,16 +7,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func Read(configPath string) (c Config) {
+func Read(configPath string) (c Config, err error) {
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
-		fmt.Printf("Error reading config file: %s\n", err)
-		panic(err)
+		err = fmt.Errorf("%s: %w", "Error reading config file", err)
+		return
 	}
 	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {
-		fmt.Printf("Error parsing config file: %s\n", err)
-		panic(err)
+		err = fmt.Errorf("%s: %w", "Error parsing config file", err)
 	}
 	return
 }

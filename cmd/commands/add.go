@@ -13,18 +13,20 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add",
+	Use:   "add [ip] [mask]",
 	Short: "Add network to list",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println("Usage: abf whitelist add <ip> <mask>")
+		serverAddress, err := cmd.Flags().GetString("ip")
+		if err != nil {
+			fmt.Println(err)
 			return
 		}
 		if cmd.Parent().Name() == whiteList {
-			addToList(args[0], args[1], whiteList)
+			addToList(args[0], args[1], whiteList, serverAddress)
 			return
 		} else if cmd.Parent().Name() == blackList {
-			addToList(args[0], args[1], blackList)
+			addToList(args[0], args[1], blackList, serverAddress)
 			return
 		}
 		fmt.Println("Unknown command")
@@ -32,15 +34,20 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
+	addCmd.Flags().String("ip", serviceAddr, "service address")
 	addCmdForWhiteList := *addCmd
 	addCmdForBlackList := *addCmd
 	whiteListCmd.AddCommand(&addCmdForWhiteList)
 	blackListCmd.AddCommand(&addCmdForBlackList)
 }
 
-func addToList(ip, mask, list string) {
+func addToList(ip, mask, list, serverAddress string) {
 	networkRequest := &request.NetworkRequest{Network: ip + "/" + mask}
-	requestBody, _ := easyjson.Marshal(networkRequest)
+	requestBody, err := easyjson.Marshal(networkRequest)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	httpRequest, err := http.NewRequestWithContext(context.Background(), http.MethodPost,
 		serverAddress+"/api/"+list, bytes.NewBuffer(requestBody))
