@@ -21,6 +21,8 @@ linters-settings:
           - strconv
           - syscall
           - context
+          - reflect
+          - testing
           - net/http
           - gopkg.in/yaml.v2
           - github.com/mailru/easyjson
@@ -30,13 +32,15 @@ linters-settings:
           - github.com/jmoiron/sqlx
           - github.com/lib/pq
           - github.com/spf13/cobra
+          - github.com/golang/mock/gomock
+          - github.com/stretchr/testify/require
+          - github.com/golang/mock/gomock
 
 linters:
   disable-all: true
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -60,7 +64,6 @@ linters:
     - gosec
     - gosimple
     - govet
-    - ifshort
     - importas
     - ineffassign
     - lll
@@ -76,7 +79,6 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
     - stylecheck
     - tagliatelle
     - thelper
@@ -85,6 +87,5 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
     - wastedassign
     - whitespace

@@ -46,7 +46,7 @@ func (l *ListRepo) Add(ctx context.Context, network entity.Network) error {
 }
 
 func (l *ListRepo) GetAll(ctx context.Context) ([]entity.Network, error) {
-	networkList := make([]entity.Network, 10)
+	networkList := make([]entity.Network, 0)
 	err := l.client.DB.SelectContext(ctx, &networkList, fmt.Sprintf(selectAllSQL, l.tableName))
 	if err != nil {
 		return nil, err
