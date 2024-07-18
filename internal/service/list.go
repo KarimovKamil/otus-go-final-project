@@ -8,10 +8,10 @@ import (
 )
 
 type ListService struct {
-	repo *repository.ListRepo
+	repo repository.IListRepo
 }
 
-func NewListService(repo *repository.ListRepo) *ListService {
+func NewListService(repo repository.IListRepo) *ListService {
 	return &ListService{
 		repo: repo,
 	}

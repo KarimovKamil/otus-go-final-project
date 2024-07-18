@@ -34,7 +34,6 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	removeCmd.Flags().String("ip", serviceAddr, "service address")
 	removeCmdForWhiteList := *removeCmd
 	removeCmdForBlackList := *removeCmd
 	whiteListCmd.AddCommand(&removeCmdForWhiteList)

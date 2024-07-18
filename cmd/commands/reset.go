@@ -27,7 +27,6 @@ var resetCmd = &cobra.Command{
 }
 
 func init() {
-	resetCmd.Flags().String("ip", serviceAddr, "service address")
 	bucketCmd.AddCommand(resetCmd)
 }
 

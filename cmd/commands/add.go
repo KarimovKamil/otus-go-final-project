@@ -34,7 +34,6 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
-	addCmd.Flags().String("ip", serviceAddr, "service address")
 	addCmdForWhiteList := *addCmd
 	addCmdForBlackList := *addCmd
 	whiteListCmd.AddCommand(&addCmdForWhiteList)
